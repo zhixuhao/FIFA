@@ -23,8 +23,8 @@ class dataProcess(object):
 		print('-'*30)
 		print('load train images...')
 		print('-'*30)
-		imgs_train = np.load(self.npy_path+"/imgs_train.npy")
-		imgs_label_train = np.load(self.npy_path+"/imgs_train_label.npy")
+		imgs_train = np.load(self.npy_path+"/img_train.npy")
+		imgs_label_train = np.load(self.npy_path+"/img_train_label.npy")
 		#imgs_train = imgs_train.astype('float32')
 		#imgs_mask_train = imgs_mask_train.astype('float32')
 		#imgs_train /= 255
@@ -37,7 +37,7 @@ class dataProcess(object):
 		print('-'*30)
 		print('load test images...')
 		print('-'*30)
-		imgs_test = np.load(self.npy_path+"/imgs_test.npy")
+		imgs_test = np.load(self.npy_path+"/img_test.npy")
 		#imgs_test = imgs_test.astype('float32')
 		#imgs_test /= 255
 		#mean = imgs_test.mean(axis = 0)

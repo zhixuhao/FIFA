@@ -6,6 +6,7 @@ from keras.optimizers import *
 from data import dataProcess
 from keras import backend as K
 from sklearn.metrics import matthews_corrcoef
+import matplotlib.pyplot as plt
 
 def dice_coef(y_true, y_pred):
 	smooth = 1.
@@ -101,7 +102,24 @@ class multiNet(object):
 
 		model_checkpoint = ModelCheckpoint('multinet.hdf5', monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		model.fit(imgs_train, train_label, batch_size=128, nb_epoch=20, validation_split = 0.25, verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=128, nb_epoch=20, validation_split = 0.25, verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		print(history.history.keys())
+		plt.plot(history.history['acc'])
+		plt.plot(history.history['val_acc'])
+		plt.title('model accuracy')
+		plt.ylabel('accuracy')
+		plt.xlabel('epoch')
+		plt.legend(['train', 'test'], loc='upper left')
+		plt.show()
+		# summarize history for loss
+		plt.plot(history.history['loss'])
+		plt.plot(history.history['val_loss'])
+		plt.title('model loss')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend(['train', 'test'], loc='upper left')
+		plt.show()
+
 
 	def test(self):
 
