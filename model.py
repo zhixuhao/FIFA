@@ -37,8 +37,8 @@ class multiNet(object):
 	def load_test_data(self):
 
 		mydata = dataProcess(self.img_rows, self.img_cols)
-		imgs_test = mydata.load_test_data()
-		return imgs_test
+		imgs_test,imgs_label_test = mydata.load_test_data()
+		return imgs_test,imgs_label_test
 
 	
 
@@ -102,7 +102,7 @@ class multiNet(object):
 
 		model_checkpoint = ModelCheckpoint('multinet.hdf5', monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=128, nb_epoch=20, validation_split = 0.25, verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=20, validation_split = 0.25, verbose=1, shuffle=True, callbacks=[model_checkpoint])
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
 		plt.plot(history.history['val_acc'])
@@ -124,20 +124,22 @@ class multiNet(object):
 	def test(self):
 
 		print("loading data")
-		imgs_test = self.load_test_data()
+		imgs_test, imgs_test_label = self.load_test_data()
 		print("loading data done")
 
 		model = self.get_model()
 		model.load_weights('multinet.hdf5')
 		print('predict test data')
 		out = model.predict(imgs_test, batch_size=10, verbose=1)
-
-		arr_threshold = np.zeros(out.shape[1]) + 0.5
-		#arr_threshold = self.find_best_threshold(imgs_train, train_label)
-
-		y_pred = np.array([[1 if out[i,j]>=arr_threshold[j] else 0 for j in range(imgs_test.shape[1])] for i in range(len(imgs_test))])
+		out = out[:,0]
+		out[out > 0.5] = 1
+		out[out < 0.5] = 0
+		error = out - imgs_test_label
+		sum_error = np.sum(np.abs(error))
 		np.save('out.npy', out)
-		np.save('test_pred.npy', y_pred)
+		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
+		print "eva:",eva
+		print "error num:",sum_error," total num:",imgs_test_label.shape
 
 
 
