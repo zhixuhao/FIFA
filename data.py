@@ -38,12 +38,13 @@ class dataProcess(object):
 		print('load test images...')
 		print('-'*30)
 		imgs_test = np.load(self.npy_path+"/img_test.npy")
+		imgs_test_label = np.load(self.npy_path+"/img_test_label.npy")
 		#imgs_test = imgs_test.astype('float32')
 		#imgs_test /= 255
 		#mean = imgs_test.mean(axis = 0)
 		#np.save(self.npy_path + '/imgs_test_mean.npy', mean)
 		#imgs_test -= mean	
-		return imgs_test
+		return imgs_test,imgs_test_label
 
 
 
