@@ -6,7 +6,7 @@ import glob
 
 class dataProcess(object):
 
-	def __init__(self, out_rows, out_cols, npy_path = "../npydata/",  num_class = 1):
+	def __init__(self, out_rows, out_cols, npy_path = "../npydata/all_7split",  num_class = 1):
 
 		"""
 		

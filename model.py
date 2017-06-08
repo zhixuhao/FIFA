@@ -96,13 +96,15 @@ class multiNet(object):
 
 		print("loading data")
 		imgs_train, train_label = self.load_train_data()
+		imgs_test, imgs_test_label = self.load_test_data()
 		print("loading data done")
 		model = self.get_model()
 		print("got multinet")
 
-		model_checkpoint = ModelCheckpoint('multinet.hdf5', monitor='val_loss',verbose=1, save_best_only=True)
+		model_checkpoint = ModelCheckpoint('multinet_all7.hdf5', monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=20, validation_split = 0.25, verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=20, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		'''
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
 		plt.plot(history.history['val_acc'])
@@ -119,6 +121,7 @@ class multiNet(object):
 		plt.xlabel('epoch')
 		plt.legend(['train', 'test'], loc='upper left')
 		plt.show()
+		'''
 
 
 	def test(self):
@@ -128,15 +131,15 @@ class multiNet(object):
 		print("loading data done")
 
 		model = self.get_model()
-		model.load_weights('multinet.hdf5')
+		model.load_weights('multinet_all7.hdf5')
 		print('predict test data')
-		out = model.predict(imgs_test, batch_size=10, verbose=1)
+		out = model.predict(imgs_test, batch_size=64, verbose=1)
 		out = out[:,0]
 		out[out > 0.5] = 1
 		out[out < 0.5] = 0
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
-		np.save('out.npy', out)
+		np.save('out_all7.npy', out)
 		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
 		print "eva:",eva
 		print "error num:",sum_error," total num:",imgs_test_label.shape
@@ -146,5 +149,5 @@ class multiNet(object):
 if __name__ == '__main__':
 	mynet = multiNet()
 	#model = mynet.get_model()
-	mynet.train()
-	#mynet.test()
+	#mynet.train()
+	mynet.test()
