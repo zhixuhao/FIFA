@@ -12,10 +12,10 @@ for i in range(2):
     test_res = np.load(pathr + res[i])
     count = 0
     for j in range(len(test_label)):
-      if(test_label[j] != test_res[j]):
-        print "image",j
-        img = test_img[j,:,:,:]
-        io.imsave(path_dir[i] + str(j) + '.jpg',img)
-        count += 1
+          if(test_label[j] != test_res[j]):
+                print "image",j
+                img = test_img[j,:,:,:]
+                io.imsave(path_dir[i] + str(j) + '.jpg',img)
+                count += 1
     print "count: ",count    
       
