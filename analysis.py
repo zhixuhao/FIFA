@@ -7,12 +7,15 @@ path_dir = ['/home/zhixuhao/Documents/FIFA/analysis/last4/','/home/zhixuhao/Docu
 res = ['out_last4.npy','out_all7.npy']
 
 for i in range(2):
-  test_img = np.load(path[i] + 'img_test.npy')
-  test_label = np.load(path[i] + 'img_test_label.npy')
-  test_res = np.load(pathr + res[i])
-  for j in range(len(test_label)):
-    if(test_label[j] != test_res[j]):
-      print "image",j
-      img = test_img[j,:,:,:]
-      io.imsave(path_dir[i] + str(j) + '.jpg',img)
+    test_img = np.load(path[i] + 'img_test.npy')
+    test_label = np.load(path[i] + 'img_test_label.npy')
+    test_res = np.load(pathr + res[i])
+    count = 0
+    for j in range(len(test_label)):
+      if(test_label[j] != test_res[j]):
+        print "image",j
+        img = test_img[j,:,:,:]
+        io.imsave(path_dir[i] + str(j) + '.jpg',img)
+        count += 1
+    print "count: ",count    
       
