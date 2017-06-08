@@ -17,9 +17,11 @@ for i in range(2):
           if(test_label[j] != test_res[j]):
                 print "image",j
                 img = test_img[j,:,:,:]
-                t = "大厅"
+                t = ""
                 if(test_label[j] == 1):
                     t = "比赛"
+                if(test_label[j] == 0):
+                    t = "大厅"
                 io.imsave(path_dir[i] + str(j) + "_" + t + '.jpg',img)
                 count += 1
     print "count: ",count    
