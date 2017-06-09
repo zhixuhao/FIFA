@@ -1,12 +1,12 @@
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 import numpy as np 
-import pandas as pd
+#import pandas as pd
 import os
 import glob
 
 class dataProcess(object):
 
-	def __init__(self, out_rows, out_cols, npy_path = "../npydata/all_7split",  num_class = 1):
+	def __init__(self, out_rows, out_cols, num_class = 1, mode = "all7"):
 
 		"""
 		
@@ -14,9 +14,12 @@ class dataProcess(object):
 
 		self.out_rows = out_rows
 		self.out_cols = out_cols
-		self.npy_path = npy_path
 		self.num_class = num_class
-		
+		if(mode == "all7"):
+			self.npy_path = "npydata/all7"
+		else:
+			self.npy_path = "npydata/last4"
+
 
 
 	def load_train_data(self):
@@ -55,7 +58,7 @@ if __name__ == "__main__":
 	#aug.Augmentation()
 	#aug.splitMerge()
 	#aug.splitTransform()
-	mydata = dataProcess(256,256)
+	mydata = dataProcess(256,256,mode="all7")
 	mydata.create_train_data()
 	mydata.create_test_data()
 	imgs_train,imgs_label_train = mydata.load_train_data()

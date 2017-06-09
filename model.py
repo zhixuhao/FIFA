@@ -7,6 +7,8 @@ from data import dataProcess
 from keras import backend as K
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
+import analysis
+import skimage.io as io
 
 def dice_coef(y_true, y_pred):
 	smooth = 1.
@@ -22,21 +24,35 @@ def dice_coef_loss(y_true, y_pred):
 
 class multiNet(object):
 
-	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1):
+	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7"):
 
+		'''
+		
+		'''
+		print "mode is ",mode
 		self.img_rows = img_rows
 		self.img_cols = img_cols
 		self.label_num = label_num
+		self.mode = mode
+		self.threshold = 0.5
+		if(mode == "all7"):
+			self.path_dir = "analysis/all7/"
+			self.weight = "multinet_all7.hdf5"
+			self.res = "out_all7.npy"
+		else:
+			self.path_dir = "analysis/last4/"
+			self.weight = "multinet_last4.hdf5"
+			self.res = "out_last4.npy"
 
 	def load_train_data(self):
 
-		mydata = dataProcess(self.img_rows, self.img_cols)
+		mydata = dataProcess(self.img_rows, self.img_cols, mode = self.mode)
 		imgs_train, imgs_label_train = mydata.load_train_data()
 		return imgs_train, imgs_label_train
 
 	def load_test_data(self):
 
-		mydata = dataProcess(self.img_rows, self.img_cols)
+		mydata = dataProcess(self.img_rows, self.img_cols, mode = self.mode)
 		imgs_test,imgs_label_test = mydata.load_test_data()
 		return imgs_test,imgs_label_test
 
@@ -94,6 +110,12 @@ class multiNet(object):
 
 	def train(self):
 
+		'''
+		you can reduce the batch_size if the memory is not enough.
+
+		nb_epoch is the total num of epoch during training process.
+		'''
+
 		print("loading data")
 		imgs_train, train_label = self.load_train_data()
 		imgs_test, imgs_test_label = self.load_test_data()
@@ -101,9 +123,9 @@ class multiNet(object):
 		model = self.get_model()
 		print("got multinet")
 
-		model_checkpoint = ModelCheckpoint('multinet_all7.hdf5', monitor='val_loss',verbose=1, save_best_only=True)
+		model_checkpoint = ModelCheckpoint(self.weight, monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=20, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
 		'''
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
@@ -126,28 +148,63 @@ class multiNet(object):
 
 	def test(self):
 
+		'''
+		predict and analyze test data
+		'''
+
 		print("loading data")
 		imgs_test, imgs_test_label = self.load_test_data()
 		print("loading data done")
 
 		model = self.get_model()
-		model.load_weights('multinet_all7.hdf5')
+		model.load_weights(self.weight)
 		print('predict test data')
 		out = model.predict(imgs_test, batch_size=64, verbose=1)
 		out = out[:,0]
-		out[out > 0.5] = 1
-		out[out < 0.5] = 0
+		out[out > self.threshold] = 1
+		out[out < self.threshold] = 0
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
-		np.save('out_all7.npy', out)
+		np.save(self.res, out)
 		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
 		print "eva:",eva
 		print "error num:",sum_error," total num:",imgs_test_label.shape
+		self.analyze(imgs_test, imgs_test_label, out)
+
+	def analyze(self, test_image, test_label, test_res):
+		count = 0
+        for j in range(len(test_label)):
+              if(test_label[j] != test_res[j]):
+                    print "image",j
+                    img = test_img[j,:,:,:]
+                    t = ""
+                    if(test_label[j] == 1):
+                        t = "比赛"
+                    if(test_label[j] == 0):
+                        t = "大厅"
+                    io.imsave(self.path_dir + str(j) + "_" + t + '.jpg',img)
+                    count += 1
+        print "count: ",count  
+
 
 
 
 if __name__ == '__main__':
-	mynet = multiNet()
-	#model = mynet.get_model()
-	#mynet.train()
+	
+	'''
+	mode is either last4 or all7
+
+	get_model() returns a CNN-based VGG-16 model, designed for image classification
+
+	train() will train this model by fitting to the training data
+
+	test() will predict the testing data, and generate a predicting result as a .npy file
+
+	analyze() will pick all the error predictions, and save them as images, with postfix '比赛' 
+	or '大厅', which is the true label.
+
+	'''
+
+	mynet = multiNet(mode="last4")
+	mynet.train()
 	mynet.test()
