@@ -175,7 +175,7 @@ class multiNet(object):
 
 		model_checkpoint = ModelCheckpoint(self.weight, monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=4, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
 		'''
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
@@ -209,14 +209,14 @@ class multiNet(object):
 		model = self.get_model()
 		model.load_weights(self.weight)
 		print('predict test data')
-		out = model.predict(imgs_test, batch_size=64, verbose=1)
+		out = model.predict(imgs_test, batch_size=4, verbose=1)
 		out = out[:,0]
 		out[out > self.threshold] = 1
 		out[out < self.threshold] = 0
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
 		np.save(self.res, out)
-		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
+		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=4, verbose=1)
 		print "eva:",eva
 		print "error num:",sum_error," total num:",imgs_test_label.shape
 		self.analyze(imgs_test, imgs_test_label, out)
