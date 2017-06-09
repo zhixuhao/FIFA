@@ -1,3 +1,4 @@
+#coding=utf-8
 import numpy as np
 from keras.models import *
 from keras.layers import *
