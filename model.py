@@ -25,7 +25,7 @@ def dice_coef_loss(y_true, y_pred):
 
 class multiNet(object):
 
-	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7", small):
+	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7", small = "True"):
 
 		'''
 		
@@ -37,6 +37,7 @@ class multiNet(object):
 		self.mode = mode
 		self.threshold = 0.5
 		self.model_txt = ""
+		self.small = small
 		if(small):
 			self.model_txt = "small"
 			
@@ -170,6 +171,8 @@ class multiNet(object):
 		imgs_train, train_label = self.load_train_data()
 		imgs_test, imgs_test_label = self.load_test_data()
 		print("loading data done")
+		if(self.small):
+			model = self.get_small_model()
 		model = self.get_model()
 		print("got multinet")
 
