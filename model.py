@@ -25,7 +25,7 @@ def dice_coef_loss(y_true, y_pred):
 
 class multiNet(object):
 
-	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7"):
+	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7", small):
 
 		'''
 		
@@ -36,14 +36,18 @@ class multiNet(object):
 		self.label_num = label_num
 		self.mode = mode
 		self.threshold = 0.5
+		self.model_txt = ""
+		if(small):
+			self.model_txt = "small"
+			
+		self.path_dir = "analysis/last4/"
+		self.weight = "multinet_last4"+self.model_txt+".hdf5"
+		self.res = "out_last4"+self.model_txt+".npy"
 		if(mode == "all7"):
 			self.path_dir = "analysis/all7/"
-			self.weight = "multinet_all7.hdf5"
-			self.res = "out_all7.npy"
-		else:
-			self.path_dir = "analysis/last4/"
-			self.weight = "multinet_last4.hdf5"
-			self.res = "out_last4.npy"
+			self.weight = "multinet_all7"+self.model_txt+".hdf5"
+			self.res = "out_all7"+self.model_txt+".npy"
+			
 
 	def load_train_data(self):
 
@@ -98,6 +102,51 @@ class multiNet(object):
 		fc6 = Dropout(0.5)(fc6)
 
 		fc7 = Dense(4096, activation = 'relu')(fc6)
+		fc7 = Dropout(0.5)(fc7)
+
+		fc8 = Dense(self.label_num, activation = 'sigmoid')(fc7)			
+
+		model = Model(input = inputs, output = fc8)
+		#model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, metrics=[dice_coef,distance_loss])
+		model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics=['accuracy'])																																												
+
+		return model
+	
+	def get_small_model(self):
+		
+		inputs = Input((self.img_rows, self.img_cols,3))
+
+		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)
+		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)
+		pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+
+		conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool1)
+		conv2 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv2)
+		pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+
+		conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool2)
+		conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv3)
+		#conv3 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv3)
+		pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+
+		conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool3)
+		conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv4)
+		#conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv4)
+		#conv4 = Dropout(0.5)(conv4)
+		pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
+
+		#conv5 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool4)
+		#conv5 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv5)
+		#conv5 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv5)
+		#conv5 = Dropout(0.5)(conv5)
+		#pool5 = MaxPooling2D(pool_size=(2, 2))(conv5)
+
+		pool5 = Flatten()(pool4)
+
+		fc6 = Dense(512, activation = 'relu')(pool5)
+		fc6 = Dropout(0.5)(fc6)
+
+		fc7 = Dense(512, activation = 'relu')(fc6)
 		fc7 = Dropout(0.5)(fc7)
 
 		fc8 = Dense(self.label_num, activation = 'sigmoid')(fc7)			
@@ -174,18 +223,18 @@ class multiNet(object):
 
 	def analyze(self, test_image, test_label, test_res):
 		count = 0
-        for j in range(len(test_label)):
-              if(test_label[j] != test_res[j]):
-                    print "image",j
-                    img = test_img[j,:,:,:]
-                    t = ""
-                    if(test_label[j] == 1):
-                        t = "比赛"
-                    if(test_label[j] == 0):
-                        t = "大厅"
-                    io.imsave(self.path_dir + str(j) + "_" + t + '.jpg',img)
-                    count += 1
-        print "count: ",count  
+		for j in range(len(test_label)):
+			if(test_label[j] != test_res[j]):
+				print "image",j
+				img = test_img[j,:,:,:]
+				t = ""
+				if(test_label[j] == 1):
+					t = "比赛"
+				if(test_label[j] == 0):
+					t = "大厅"
+				io.imsave(self.path_dir + str(j) + "_" + t + '.jpg',img)
+				count += 1
+		print "count: ",count  
 
 
 
@@ -205,7 +254,7 @@ if __name__ == '__main__':
 	or '大厅', which is the true label.
 
 	'''
-
-	mynet = multiNet(mode="last4")
+	
+	mynet = multiNet(mode="last4", small=True)
 	mynet.train()
 	mynet.test()
