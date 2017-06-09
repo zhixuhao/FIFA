@@ -6,6 +6,12 @@ import sys,os
 pathlist = []
 pathlist_label = []
 
+mode = "last4"
+path = ""
+if(mode == "last4"):
+    path = "npydata/last4/"
+else:
+    path = "npydata/all7/"
 #递归查找文件夹
 def find_path(path):
     paths = os.listdir(path)
@@ -82,15 +88,15 @@ print len(img_train) + len(img_test)
 img_train = np.array(img_train)
 print img_train.shape
 img_train = img_train.astype('float32')
-np.save('npydata/img_train.npy',img_train)
+np.save(path + 'img_train.npy',img_train)
 img_train_label = np.array(img_train_label)
 print img_train_label.shape
-np.save('npydata/img_train_label.npy',img_train_label)
+np.save(path + 'img_train_label.npy',img_train_label)
 img_test_label = np.array(img_test_label)
 print img_test_label.shape
-np.save('npydata/img_test_label.npy',img_test_label)
+np.save(path + 'img_test_label.npy',img_test_label)
 img_test = np.array(img_test)
 print img_test.shape
 img_test = img_test.astype('float32')
-np.save('npydata/img_test.npy',img_test)
+np.save(path + 'img_test.npy',img_test)
 '''
