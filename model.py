@@ -1,4 +1,5 @@
 #coding=utf-8
+import os
 import numpy as np
 from keras.models import *
 from keras.layers import *
@@ -62,6 +63,16 @@ class multiNet(object):
 		imgs_test,imgs_label_test = mydata.load_test_data()
 		return imgs_test,imgs_label_test
 
+	def add_extra_data(self, pre_data, pre_label, path, arr, mode="train"):
+		
+		for item in path:
+			print "load",item
+			tmp_data = np.load(os.path.join(path,item+"_"+mode+"_data.npy"))
+			tmp_label = np.load(os.path.join(path,item+"_"+mode+"_label.npy"))
+			print "load done",item
+			pre_data = np.concatenate((pre_data,tmp_data),axis=0)
+			pre_label = np.concatenate((pre_label,tmp_label),axis=0)
+		return pre_data,pre_label
 	
 
 	def get_model(self):
@@ -170,6 +181,8 @@ class multiNet(object):
 		print("loading data")
 		imgs_train, train_label = self.load_train_data()
 		imgs_test, imgs_test_label = self.load_test_data()
+		imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../0609/npydata/",["800X600","1024X768"])
+		imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata/",["800X600","1024X768"],mode="test")
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
