@@ -1,4 +1,8 @@
 #coding=utf-8
+'''
+train with img train and 800X600,1024X768 image,test with img test and 800X600,1024X768,1440X900
+acc = 99%
+'''
 import os
 import numpy as np
 from keras.models import *
@@ -41,10 +45,15 @@ class multiNet(object):
 		self.small = small
 		if(small):
 			self.model_txt = "small"
+		if(mode == "last4"):
+			self.path_dir = "analysis/last4/"
+			self.weight = "multinet_last4"+self.model_txt+".hdf5"
+			self.res = "out_last4"+self.model_txt+".npy"
+		if(mode == "extra"):
 			
-		self.path_dir = "analysis/last4/"
-		self.weight = "multinet_last4"+self.model_txt+".hdf5"
-		self.res = "out_last4"+self.model_txt+".npy"
+			self.path_dir = "analysis/extra/"
+			self.weight = "multinet_extra"+self.model_txt+".hdf5"
+			self.res = "out_extra"+self.model_txt+".npy"
 		if(mode == "all7"):
 			self.path_dir = "analysis/all7/"
 			self.weight = "multinet_all7"+self.model_txt+".hdf5"
@@ -65,7 +74,7 @@ class multiNet(object):
 
 	def add_extra_data(self, pre_data, pre_label, path, arr, mode="train"):
 		
-		for item in path:
+		for item in arr:
 			print "load",item
 			tmp_data = np.load(os.path.join(path,item+"_"+mode+"_data.npy"))
 			tmp_label = np.load(os.path.join(path,item+"_"+mode+"_label.npy"))
@@ -181,8 +190,9 @@ class multiNet(object):
 		print("loading data")
 		imgs_train, train_label = self.load_train_data()
 		imgs_test, imgs_test_label = self.load_test_data()
-		imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../0609/npydata/",["800X600","1024X768"])
-		imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata/",["800X600","1024X768"],mode="test")
+		if(self.mode == "extra"):
+			imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../0609/npydata/",["800X600","1024X768"])
+			imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata/",["800X600","1024X768"],mode="test")
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
@@ -221,6 +231,8 @@ class multiNet(object):
 
 		print("loading data")
 		imgs_test, imgs_test_label = self.load_test_data()
+		if(self.mode == "extra"):
+			imgs_test,imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata",["800X600","1024X768","1440X900"],mode="test")
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
@@ -248,9 +260,9 @@ class multiNet(object):
 				img = test_img[j,:,:,:]
 				t = ""
 				if(test_label[j] == 1):
-					t = "比赛"
+					t = "game"
 				if(test_label[j] == 0):
-					t = "大厅"
+					t = "hall"
 				io.imsave(self.path_dir + str(j) + "_" + t + '.jpg',img)
 				count += 1
 		print "count: ",count  
@@ -274,6 +286,6 @@ if __name__ == '__main__':
 
 	'''
 	
-	mynet = multiNet(mode="last4", small=True)
+	mynet = multiNet(mode="extra", small=True)
 	#mynet.train()
 	mynet.test()
