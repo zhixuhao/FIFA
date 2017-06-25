@@ -7,7 +7,7 @@ from keras.optimizers import *
 from data import dataProcess
 from keras import backend as K
 from sklearn.metrics import matthews_corrcoef
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import analysis
 import skimage.io as io
 
@@ -25,7 +25,7 @@ def dice_coef_loss(y_true, y_pred):
 
 class multiNet(object):
 
-	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7", small = "True"):
+	def __init__(self, img_rows = 192, img_cols = 256, label_num = 1, mode = "all7", small = True):
 
 		'''
 		
@@ -173,12 +173,13 @@ class multiNet(object):
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
-		model = self.get_model()
+		else:
+			model = self.get_model()
 		print("got multinet")
 
 		model_checkpoint = ModelCheckpoint(self.weight, monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=4, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=16, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
 		'''
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
@@ -208,8 +209,10 @@ class multiNet(object):
 		print("loading data")
 		imgs_test, imgs_test_label = self.load_test_data()
 		print("loading data done")
-
-		model = self.get_model()
+		if(self.small):
+			model = self.get_small_model()
+		else:
+			model = self.get_model()
 		model.load_weights(self.weight)
 		print('predict test data')
 		out = model.predict(imgs_test, batch_size=4, verbose=1)
@@ -219,12 +222,12 @@ class multiNet(object):
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
 		np.save(self.res, out)
-		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=4, verbose=1)
-		print "eva:",eva
-		print "error num:",sum_error," total num:",imgs_test_label.shape
+		#eva = model.evaluate(imgs_test,imgs_test_label,batch_size=4, verbose=1)
+		#print "eva:",eva
+		#print "error num:",sum_error," total num:",imgs_test_label.shape
 		self.analyze(imgs_test, imgs_test_label, out)
 
-	def analyze(self, test_image, test_label, test_res):
+	def analyze(self, test_img, test_label, test_res):
 		count = 0
 		for j in range(len(test_label)):
 			if(test_label[j] != test_res[j]):
@@ -259,5 +262,5 @@ if __name__ == '__main__':
 	'''
 	
 	mynet = multiNet(mode="last4", small=True)
-	mynet.train()
+	#mynet.train()
 	mynet.test()
