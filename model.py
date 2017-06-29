@@ -285,7 +285,7 @@ class multiNet(object):
 		
 	def test_0629(self):
 		model = self.get_small_model()
-		model.load_weights('multinet_extrasmall.hdf5')
+		model.load_weights('multinet_extra0629small.hdf5')
 		test_arr = []
 		tmp_arr = os.listdir('../npydata/0629/npydata')
 		for t in tmp_arr:
@@ -311,5 +311,5 @@ if __name__ == '__main__':
 	'''
 	
 	mynet = multiNet(mode="extra", small=True)
-	mynet.train()
+	#mynet.train()
 	mynet.test_0629()
