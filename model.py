@@ -234,7 +234,7 @@ class multiNet(object):
 		print("loading data")
 		imgs_test, imgs_test_label = self.load_test_data()
 		if(self.mode == "extra"):
-			imgs_test,imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"..npydata/0609/npydata",["800X600_Full_hall_1","1024X768_Full_hall_1","1440X900_Full_hall_1"],mode="test")
+			imgs_test,imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"..npydata/0609/npydata",["800X600_Full_hall_1","1024X768_Full_hall_1","1440X900_Full_hall_1"])
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
