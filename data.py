@@ -16,9 +16,9 @@ class dataProcess(object):
 		self.out_cols = out_cols
 		self.num_class = num_class
 		if(mode == "all7"):
-			self.npy_path = "npydata/all7"
+			self.npy_path = "../npydata/all7"
 		else:
-			self.npy_path = "npydata/last4"
+			self.npy_path = "../npydata/last4"
 
 
 
