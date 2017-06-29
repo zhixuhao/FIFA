@@ -271,9 +271,9 @@ class multiNet(object):
 		print "loading ",name
 		img_test = np.load(os.path.join('../npydata/0629/npydata',name+'.npy'))
 		img_test_label = np.load(os.path.join('../npydata/0629/npydata',name+'_label.npy'))
-		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
+		eva = model.evaluate(img_test,img_test_label,batch_size=64, verbose=1)
 		print name,"eva:",eva
-		print "error num:",sum_error," total num:",imgs_test_label.shape
+		print "error num:",sum_error," total num:",img_test_label.shape
 		
 	def test_0629(self):
 		model = self.get_small_model()
