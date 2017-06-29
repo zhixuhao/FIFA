@@ -267,8 +267,20 @@ class multiNet(object):
 				count += 1
 		print "count: ",count  
 
-
-
+	def test_one(self, model, name):
+		print "loading ",name
+		img_test = np.load(os.path.join('../npydata/0629',name+'.npy'))
+		img_test_label = np.load(os.path.join('../npydata/0629',name+'_label.npy'))
+		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
+		print name,"eva:",eva
+		print "error num:",sum_error," total num:",imgs_test_label.shape
+		
+	def test_0629(self):
+		model = self.get_small_model()
+		model.load_weights('multinet_extrasmall.hdf5')
+		test_arr = ['1024X768_Full_game','1024X768_Win_game','1024X768_Full_hall','1024X768_Win_hall','800X600_Full_game','800X600_Win_game','800X600_Full_hall','800X600_Win_hall']
+		for n in test_arr:
+			self.test_one(model,n)
 
 if __name__ == '__main__':
 	
@@ -288,4 +300,4 @@ if __name__ == '__main__':
 	
 	mynet = multiNet(mode="extra", small=True)
 	#mynet.train()
-	mynet.test()
+	mynet.test_0629()
