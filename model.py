@@ -269,11 +269,17 @@ class multiNet(object):
 
 	def test_one(self, model, name):
 		print "loading ",name
-		img_test = np.load(os.path.join('../npydata/0629/npydata',name+'.npy'))
-		img_test_label = np.load(os.path.join('../npydata/0629/npydata',name+'_label.npy'))
-		eva = model.evaluate(img_test,img_test_label,batch_size=64, verbose=1)
+		imgs_test = np.load(os.path.join('../npydata/0629/npydata',name+'.npy'))
+		imgs_test_label = np.load(os.path.join('../npydata/0629/npydata',name+'_label.npy'))
+		out = model.predict(imgs_test, batch_size=4, verbose=1)
+		out = out[:,0]
+		out[out > self.threshold] = 1
+		out[out < self.threshold] = 0
+		error = out - imgs_test_label
+		sum_error = np.sum(np.abs(error))
+		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
 		print name,"eva:",eva
-		print "error num:",sum_error," total num:",img_test_label.shape
+		print "error num:",sum_error," total num:",imgs_test_label.shape
 		
 	def test_0629(self):
 		model = self.get_small_model()
