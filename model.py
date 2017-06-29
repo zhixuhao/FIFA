@@ -271,7 +271,7 @@ class multiNet(object):
 		print "loading ",name
 		imgs_test = np.load(os.path.join('../npydata/0629/npydata',name+'.npy'))
 		imgs_test_label = np.load(os.path.join('../npydata/0629/npydata',name+'_label.npy'))
-		out = model.predict(imgs_test, batch_size=4, verbose=1)
+		out = model.predict(imgs_test, batch_size=64, verbose=1)
 		out = out[:,0]
 		out[out > self.threshold] = 1
 		out[out < self.threshold] = 0
@@ -284,7 +284,11 @@ class multiNet(object):
 	def test_0629(self):
 		model = self.get_small_model()
 		model.load_weights('multinet_extrasmall.hdf5')
-		test_arr = ['1024X768_Full_game','1024X768_Win_game','1024X768_Full_hall','1024X768_Win_hall','800X600_Full_game','800X600_Win_game','800X600_Full_hall','800X600_Win_hall']
+		test_arr = []
+		tmp_arr = os.listdir('../npydata/0629/npydata')
+		for t in tmp_arr:
+			if(t.find('_label') > -1):
+				test_arr.append(t[:len(t)-10])
 		for n in test_arr:
 			self.test_one(model,n)
 
