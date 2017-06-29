@@ -52,7 +52,7 @@ class multiNet(object):
 		if(mode == "extra"):
 			
 			self.path_dir = "analysis/extra/"
-			self.weight = "multinet_extra"+self.model_txt+".hdf5"
+			self.weight = "multinet_extra0629"+self.model_txt+".hdf5"
 			self.res = "out_extra"+self.model_txt+".npy"
 		if(mode == "all7"):
 			self.path_dir = "analysis/all7/"
@@ -72,12 +72,12 @@ class multiNet(object):
 		imgs_test,imgs_label_test = mydata.load_test_data()
 		return imgs_test,imgs_label_test
 
-	def add_extra_data(self, pre_data, pre_label, path, arr, mode="train"):
+	def add_extra_data(self, pre_data, pre_label, path, arr):
 		
 		for item in arr:
 			print "load",item
-			tmp_data = np.load(os.path.join(path,item+"_"+mode+"_data.npy"))
-			tmp_label = np.load(os.path.join(path,item+"_"+mode+"_label.npy"))
+			tmp_data = np.load(os.path.join(path,item+".npy"))
+			tmp_label = np.load(os.path.join(path,item+"_label.npy"))
 			print "load done",item
 			pre_data = np.concatenate((pre_data,tmp_data),axis=0)
 			pre_label = np.concatenate((pre_label,tmp_label),axis=0)
@@ -190,9 +190,11 @@ class multiNet(object):
 		print("loading data")
 		imgs_train, train_label = self.load_train_data()
 		imgs_test, imgs_test_label = self.load_test_data()
-		if(self.mode == "extra"):
-			imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../0609/npydata/",["800X600","1024X768"])
-			imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata/",["800X600","1024X768"],mode="test")
+		
+		imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../npydata/0609/npydata/",["800X600_Full_hall_0","1024X768_Full_hall_0"])
+		imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../npydata/0609/npydata/",["800X600_Full_hall_1","1024X768_Full_hall_1"])
+		imgs_train, train_label = self.add_extra_data(imgs_train,train_label,"../npydata/0629/npydata/",["800X600_Win_hall","800X600_Win_game","1024X768_Win_hall","1024X768_Win_game"])
+		imgs_test, imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../npydata/0629/npydata/",["1280X720_Win_hall","1280X720_Win_game","720X576_Win_hall","720X576_Win_game"])
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
@@ -202,7 +204,7 @@ class multiNet(object):
 
 		model_checkpoint = ModelCheckpoint(self.weight, monitor='val_loss',verbose=1, save_best_only=True)
 		print('Fitting model...')
-		history = model.fit(imgs_train, train_label, batch_size=16, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
+		history = model.fit(imgs_train, train_label, batch_size=64, nb_epoch=8, validation_data=(imgs_test,imgs_test_label), verbose=1, shuffle=True, callbacks=[model_checkpoint])
 		'''
 		print(history.history.keys())
 		plt.plot(history.history['acc'])
@@ -309,5 +311,5 @@ if __name__ == '__main__':
 	'''
 	
 	mynet = multiNet(mode="extra", small=True)
-	#mynet.train()
+	mynet.train()
 	mynet.test_0629()
