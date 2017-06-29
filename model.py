@@ -234,7 +234,7 @@ class multiNet(object):
 		print("loading data")
 		imgs_test, imgs_test_label = self.load_test_data()
 		if(self.mode == "extra"):
-			imgs_test,imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"../0609/npydata",["800X600","1024X768","1440X900"],mode="test")
+			imgs_test,imgs_test_label = self.add_extra_data(imgs_test,imgs_test_label,"..npydata/0609/npydata",["800X600_Full_hall_1","1024X768_Full_hall_1","1440X900_Full_hall_1"],mode="test")
 		print("loading data done")
 		if(self.small):
 			model = self.get_small_model()
@@ -242,17 +242,17 @@ class multiNet(object):
 			model = self.get_model()
 		model.load_weights(self.weight)
 		print('predict test data')
-		out = model.predict(imgs_test, batch_size=4, verbose=1)
+		out = model.predict(imgs_test, batch_size=64, verbose=1)
 		out = out[:,0]
 		out[out > self.threshold] = 1
 		out[out < self.threshold] = 0
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
-		np.save(self.res, out)
-		#eva = model.evaluate(imgs_test,imgs_test_label,batch_size=4, verbose=1)
-		#print "eva:",eva
-		#print "error num:",sum_error," total num:",imgs_test_label.shape
-		self.analyze(imgs_test, imgs_test_label, out)
+		#np.save(self.res, out)
+		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
+		print "eva:",eva
+		print "error num:",sum_error," total num:",imgs_test_label.shape
+		#self.analyze(imgs_test, imgs_test_label, out)
 
 	def analyze(self, test_img, test_label, test_res):
 		count = 0
@@ -312,4 +312,4 @@ if __name__ == '__main__':
 	
 	mynet = multiNet(mode="extra", small=True)
 	#mynet.train()
-	mynet.test_0629()
+	mynet.test()
