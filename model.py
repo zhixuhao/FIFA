@@ -254,8 +254,10 @@ class multiNet(object):
 		print "error num:",sum_error," total num:",imgs_test_label.shape
 		#self.analyze(imgs_test, imgs_test_label, out)
 
-	def analyze(self, test_img, test_label, test_res):
+	def analyze(self, test_img, test_label, test_res, path):
 		count = 0
+		if(!os.path.exists(os.path.join('analysis',path))):
+			os.mkdir(os.path.join('analysis',path)))
 		for j in range(len(test_label)):
 			if(test_label[j] != test_res[j]):
 				print "image",j
@@ -265,7 +267,7 @@ class multiNet(object):
 					t = "game"
 				if(test_label[j] == 0):
 					t = "hall"
-				io.imsave(self.path_dir + str(j) + "_" + t + '.jpg',img)
+				io.imsave( os.path.join('analysis',path,str(j) + "_" + t + '.jpg'),img)
 				count += 1
 		print "count: ",count  
 
@@ -277,11 +279,13 @@ class multiNet(object):
 		out = out[:,0]
 		out[out > self.threshold] = 1
 		out[out < self.threshold] = 0
+		np.save(os.path.join('out','out_'+name+'.npy'), out)
 		error = out - imgs_test_label
 		sum_error = np.sum(np.abs(error))
 		eva = model.evaluate(imgs_test,imgs_test_label,batch_size=64, verbose=1)
 		print name,"eva:",eva
 		print "error num:",sum_error," total num:",imgs_test_label.shape
+		self.analyze(imgs_test, imgs_test_label, out, name)
 		
 	def test_0629(self):
 		model = self.get_small_model()
@@ -312,4 +316,4 @@ if __name__ == '__main__':
 	
 	mynet = multiNet(mode="extra", small=True)
 	#mynet.train()
-	mynet.test()
+	mynet.test0629()
