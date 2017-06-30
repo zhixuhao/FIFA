@@ -316,4 +316,4 @@ if __name__ == '__main__':
 	
 	mynet = multiNet(mode="extra", small=True)
 	#mynet.train()
-	mynet.test0629()
+	mynet.test_0629()
