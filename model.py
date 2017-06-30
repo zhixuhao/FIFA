@@ -256,7 +256,7 @@ class multiNet(object):
 
 	def analyze(self, test_img, test_label, test_res, path):
 		count = 0
-		if(not os.path.exists(os.path.join('analysis',path)):
+		if(not os.path.exists(os.path.join('analysis',path))):
 			os.mkdir(os.path.join('analysis',path)))
 		for j in range(len(test_label)):
 			if(test_label[j] != test_res[j]):
